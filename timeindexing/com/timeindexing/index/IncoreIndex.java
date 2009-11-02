@@ -356,13 +356,21 @@ public class IncoreIndex extends AbstractManagedIndex implements ManagedIndex {
     public IndexItem getItem(long n) throws GetItemException {
 	setLastAccessTime();
 
-	// all items are in the cache for INCORE indexes
-	IndexItem item = indexCache.getItem(n);
+	// check if out of bounds
+        if (n < 0) {
+	    throw new GetItemException("Cant load item " + n);
+	} else if (n >= getLength()) {
+	    throw new GetItemException("Cant load item " + n);
+	} else {
 
-	// tell all the listeners that an item has been accessed
-	eventMulticaster.fireAccessEvent(new IndexAccessEvent(getURI().toString(), header.getID(), item, this));
+	    // all items are in the cache for INCORE indexes
+	    IndexItem item = indexCache.getItem(n);
 
-	return item;
+	    // tell all the listeners that an item has been accessed
+	    eventMulticaster.fireAccessEvent(new IndexAccessEvent(getURI().toString(), header.getID(), item, this));
+
+	    return item;
+	}
     }
 
 

@@ -125,12 +125,14 @@ public class EndPointInterval extends AbsoluteInterval implements Interval, Clon
 		// determine the timestamp of the startpoint
 		TimestampMapping posStart = index.locate(startPosition, selector, lifetime);
 
+		//System.err.println("posStart = " + posStart);
+
 		if (posStart == null) {
 		    // it couldn't be found
 		    return null;
 		} else {
 		    // use original position
-		    startPos = startPosition;
+		    startPos = posStart.position();  // was startPosition;
 		    // this is the end position
 		    endPos = resolveValue(index, posStart, endValue, selector, Lifetime.CONTINUOUS);
 		}
