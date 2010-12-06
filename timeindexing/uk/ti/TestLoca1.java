@@ -239,14 +239,19 @@ public class TestLoca1 {
 	String rawData = null;	
 	String outData = null;
 
-	if (item.getDataSize().value() > 32) {
-	    rawData = new String(itemdata.array()).substring(0,27);
+        byte[] array = new byte[32];
+        int dataSize = (int)item.getDataSize().value();
+        
+	if (dataSize > 32) {
+            itemdata.get(array, 0, 27);
+	    rawData = new String(array) + "....\t";
 	    outData = rawData.replace('\n', (char)182);
-	    out.append(outData + "....\t");
+	    out.append(outData);
 	} else {
-	    rawData = new String(itemdata.array());
+            itemdata.get(array, 0, dataSize);
+	    rawData = new String(array, 0, dataSize) +  "\t";
 	    outData = rawData.replace('\n', (char)182);
-	    out.append(outData + "\t");
+	    out.append(outData);
 	}
 
 	out.append(item.getDataSize() + "\t");

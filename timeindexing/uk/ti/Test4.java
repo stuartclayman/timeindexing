@@ -155,13 +155,16 @@ public class Test4 {
 
 	System.out.print(item.getIndexTimestamp() + "\t");
 
-	if (item.getDataSize().value() > 16) {
-	    ByteBuffer itemdata = item.getData();
-	    System.out.print(new String(itemdata.array()).substring(0,11) + "....\t");
+        ByteBuffer itemdata = item.getData();
+        byte[] array = new byte[16];
+        int dataSize = (int)item.getDataSize().value();
+        
+	if (dataSize > 16) {
+            itemdata.get(array, 0, 11);
+	    System.out.print(new String(array) + "....\t");
 	} else {
-	    DefaultWriter writer = new DefaultWriter(System.out);
-	    writer.write(item, null);
-	    System.out.print("\t");
+            itemdata.get(array, 0, dataSize);
+	    System.out.print(new String(array, 0, dataSize) + "\t");
 	}
 
 	System.out.print(item.getDataSize() + "\t");

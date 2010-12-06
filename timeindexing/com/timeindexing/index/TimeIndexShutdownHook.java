@@ -66,17 +66,22 @@ public class TimeIndexShutdownHook extends Thread {
 			// commit any changes
 			index.commit();
 
+		    } catch (TimeIndexException tie) {
+			System.err.println("TimeIndexShutdownHook: Cannot commit " + indexURI + " Message = " + tie.getMessage());
+		    }
+
+                    try {
 			// really close it
 			index.reallyClose();
-
-			// and remove the handle
-			TimeIndexDirectory.removeHandle(index);
-
-			System.err.println("TimeIndexShutdownHook: close " + indexURI + " Thread " + Thread.currentThread().getName()) ;
-
 		    } catch (TimeIndexException tie) {
-			System.err.println("TimeIndexShutdownHook: error closing " + indexURI + " Message = " + tie.getMessage());
+			System.err.println("TimeIndexShutdownHook: Cannot close " + indexURI + " Message = " + tie.getMessage());
 		    }
+
+                    // and remove the handle
+                    TimeIndexDirectory.removeHandle(index);
+
+                    //System.err.println("TimeIndexShutdownHook: close " + indexURI + " Thread " + Thread.currentThread().getName()) ;
+
 		}
 	    }
 	}

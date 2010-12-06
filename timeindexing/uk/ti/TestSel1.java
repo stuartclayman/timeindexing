@@ -277,12 +277,17 @@ public class TestSel1 {
 
 	out.append(itemM.getPosition() + "\t");
 
-	if (item.getDataSize().value() > 26) {
-	    rawData = new String(itemdata.array()).substring(0,21);
+        byte[] array = new byte[26];
+        int dataSize = (int)item.getDataSize().value();
+        
+	if (dataSize > 26) {
+            itemdata.get(array, 0, 21);
+	    rawData = new String(array) + "....\t";
 	    outData = rawData.replace('\n', (char)182);
 	    out.append(outData + ".... ");
 	} else {
-	    rawData = new String(itemdata.array());
+            itemdata.get(array, 0, dataSize);
+            rawData = new String(array, 0, dataSize) + "\t";
 	    outData = rawData.replace('\n', (char)182);
 
 	    out.append(outData);

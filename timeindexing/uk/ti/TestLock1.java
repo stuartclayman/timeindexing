@@ -195,13 +195,11 @@ public class TestLock1 {
 	    if (activated) {
 
 		try {
-		    long indexSize = 0;
-
 		    while ((result = plugin.read()) != null) {
 			dataTS = result.getDataTimestamp();
 			item = new ByteBufferItem(result.getData());
 
-			indexSize = index.addItem(item, dataTS);
+                        index.addItem(item, dataTS);
 		    }
 
 		    // wind it up

@@ -125,9 +125,9 @@ public class Test5B {
 
 	    delay(100);
 
-	    factory.close(index);
-
 	    printIndex(index);
+
+	    factory.close(index);
 
 
 	} catch (TimeIndexException ice) {
@@ -161,10 +161,16 @@ public class Test5B {
 	System.out.print(item.getIndexTimestamp() + "\t");
 
 	ByteBuffer itemdata = item.getData();
-	if (item.getDataSize().value() > 16) {
-	    System.out.print(new String(itemdata.array()).substring(0,11) + "....\t");
+        byte[] array = new byte[16];
+
+        int dataSize = (int)item.getDataSize().value();
+        
+	if (dataSize > 16) {
+            itemdata.get(array, 0, 11);
+	    System.out.print(new String(array) + "....\t");
 	} else {
-	    System.out.print(new String(itemdata.array()) + "\t");
+            itemdata.get(array, 0, dataSize);
+	    System.out.print(new String(array, 0, dataSize) + "\t");
 	}
 
 	System.out.print(item.getDataSize() + "\t");

@@ -64,10 +64,16 @@ public class Test2 {
 	System.out.print(item.getIndexTimestamp() + "\t");
 
 	ByteBuffer itemdata = item.getData();
-	if (item.getDataSize().value() > 12) {
-	    System.out.print(new String(itemdata.array()).substring(0,12) + "....\t");
+        byte[] array = new byte[12];
+
+        int dataSize = (int)item.getDataSize().value();
+        
+	if (dataSize > 12) {
+            itemdata.get(array, 0, 12);
+	    System.out.print(new String(array) + "....\t");
 	} else {
-	    System.out.print(new String(itemdata.array()) + "\t");
+            itemdata.get(array, 0, dataSize);
+	    System.out.print(new String(array, 0, dataSize) + "\t");
 	}
 
 	System.out.print(item.getDataSize() + "\t");

@@ -137,8 +137,6 @@ public class Thread1 implements Runnable {
     }
 
     public void printIndexItem(IndexItem item) throws TimeIndexException {
-	/*
-
 	System.out.print(myThread.getName() + ":\t");
 
 	System.out.print(item.getDataTimestamp() + "\t");
@@ -146,10 +144,15 @@ public class Thread1 implements Runnable {
 	System.out.print(item.getIndexTimestamp() + "\t");
 
 	ByteBuffer itemdata = item.getData();
-	if (item.getDataSize().value() > 16) {
-	    System.out.print(new String(itemdata.array()).substring(0,11) + "....\t");
+        byte[] array = new byte[16];
+        int dataSize = (int)item.getDataSize().value();
+        
+	if (dataSize > 16) {
+            itemdata.get(array, 0, 11);
+	    System.out.print(new String(array) + "....\t");
 	} else {
-	    System.out.print(new String(itemdata.array()) + "\t");
+            itemdata.get(array, 0, dataSize);
+	    System.out.print(new String(array, 0, dataSize) + "\t");
 	}
 
 	System.out.print(item.getDataSize() + "\t");
@@ -157,11 +160,13 @@ public class Thread1 implements Runnable {
 	System.out.print(item.getItemID() + "\t");
 
 	System.out.print(item.getAnnotationMetaData() + "\n");
-	*/
+
+        /*
 	ByteBuffer itemdata = item.getData();
-	
-	System.out.print(new String(itemdata.array()));
-	
+        byte[] array = new byte[(int)item.getDataSize().value()];
+	itemdata.get(array);
+	System.out.print(new String(array));
+	*/
     }
 
 }

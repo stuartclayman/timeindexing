@@ -142,13 +142,11 @@ public class TIRef extends TIAbstractRestore {
 	if (item.getDataSize().value() > dataView) {
 	    itemdata.get(array, 0, 27);
 	    rawData = new String(array, 0, 27);
-	    //rawData = new String(itemdata.array()).substring(0, dataView-5);
 	    outData = rawData.replace('\n', (char)182);
 	    buf.append(outData + "....\t");
 	} else {
 	    itemdata.get(array, 0, (int)item.getDataSize().value());
 	    rawData =  new String(array, 0, (int)item.getDataSize().value());
-	    //rawData = new String(itemdata.array());
 	    outData = rawData.replace('\n', (char)182);
 	    buf.append(outData + "\t");
 	}

@@ -608,7 +608,7 @@ public class TimeIndexFactory implements IndexPrimaryEventListener, IndexAddEven
 			TimeIndexDirectory.unlockI(indexURIURI);
 		    }
 
-		    throw ioe;
+		    return null;
 		}
 
 	    
