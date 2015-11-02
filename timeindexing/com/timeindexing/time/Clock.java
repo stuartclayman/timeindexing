@@ -98,6 +98,12 @@ public class Clock {
     long getRawTime() {
 	long time = System.currentTimeMillis();
 
+	return time;
+
+	/**
+	 * The following code is deprecated as 
+	 * a bug in Java runtime seems to have been fixed.
+	 *
 	// check to see if we need to refetch the DST offset
 	if (time > dstOffsetCheckTime) {
 	    // we've gone past the check time
@@ -107,6 +113,7 @@ public class Clock {
 	}
 
 	return time + dstOffset;
+	*/
     }
     
     /**
@@ -114,12 +121,20 @@ public class Clock {
      * for the offset again.
      */
     private void processDSTOffset(long time) {
+	dstOffset = 0;
+	dstOffsetCheckTime = time;
+
+	/**
+	 * The following code is deprecated as 
+	 * a bug in Java runtime seems to have been fixed.
+	 *
 	final int anHour = 60 * 60 * 1000;
 	dstOffset = timeZone.getOffset(time);
 
 	dstOffsetCheckTime = (time / anHour + 1) * anHour;
 
 	//System.err.println("time = " + time + " dstOffset = " + dstOffset + " dstOffsetCheckTime = " + dstOffsetCheckTime);
+	*/
     }
        
     /**

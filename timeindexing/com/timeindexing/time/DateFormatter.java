@@ -46,14 +46,14 @@ public class DateFormatter {
      * Construct a DateFormatter.
      */
     public DateFormatter(String pattern) {
-	synchronized (TimeZone.class) {
-	    TimeZone current = TimeZone.getDefault();
-	    TimeZone.setDefault(TimeZone.getTimeZone("GMT"));
+	//synchronized (TimeZone.class) {
+	    //TimeZone current = TimeZone.getDefault();
+	    //TimeZone.setDefault(TimeZone.getTimeZone("GMT:0"));
 
 	    formatter = new SimpleDateFormat(pattern);
 
-	    TimeZone.setDefault(current);
-	}
+	    //TimeZone.setDefault(current);
+        //}
     }
 
     /**
