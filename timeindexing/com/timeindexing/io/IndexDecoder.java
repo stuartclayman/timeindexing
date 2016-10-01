@@ -102,7 +102,7 @@ public class IndexDecoder extends DefaultIndexHeader implements ManagedIndexHead
     /**
      * Open an index header  to read it.
      */
-    public boolean open(String filename) throws IOException {
+    public synchronized boolean open(String filename) throws IOException {
 	originalFileSpecifier = filename;
 
 	return open();
@@ -114,6 +114,12 @@ public class IndexDecoder extends DefaultIndexHeader implements ManagedIndexHead
     public boolean open() throws IOException {
 	try {
 	    fileName = FileUtils.resolveFileName(originalFileSpecifier, ".tih");
+
+            if (fileName == null) {
+                throw new IOException("IndexDecoder: FileUtils.resolveFileName(" + originalFileSpecifier + " ,'.tih')" + " returns null");
+            }
+
+            
 	    File file = new File(fileName);
 
 	    String openMode = "r";
@@ -150,17 +156,17 @@ public class IndexDecoder extends DefaultIndexHeader implements ManagedIndexHead
      * Is the IndexHeader open
      */
     public boolean isOpen() {
-	if (headerFile == null) {
+	if (channel == null) {
 	    return false;
 	} else {
-	    return true;
+	    return channel.isOpen();
 	}
     }
 
     /**
      * Operation on close
      */
-    public long close() throws IOException {
+    public synchronized long close() throws IOException {
 	long size = 0;
 
 	if (channel != null) {

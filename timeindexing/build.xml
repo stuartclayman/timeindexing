@@ -6,27 +6,41 @@
     <echo message=""/>
     <property name="sources" value="${basedir}"/>
     <property name="classes" value="${basedir}/classes"/>
-    <property name="external.jars" value="./libs/servlet.jar" />
+    <property name="external.jars" value="./libs/servlet.jar:./libs/concurrentlinkedhashmap-lru-1.3.2.jar:./libs/simplelrucache-0.1.jar" />
     <property name="api" value="${basedir}/ti-doc"/>    
-    <property name="year" value="2008"/>
+    <property name="year" value="2016"/>
     <property name="jars" value="${basedir}"/>
-    <property name="release" value="200804" />
+    <property name="release" value="20160723" />
   </target>
 
   <!-- Build -->
   <target name="build" depends="init">
     <echo message="------ Compiling application"/>
     <mkdir dir="${classes}"/>
-    <javac srcdir="${sources}" destdir="${classes}" classpath="${external.jars}">
+    <javac debug="on" srcdir="${sources}" destdir="${classes}" target="1.7" source="1.7" classpath="${external.jars}" includeantruntime="false">
     <include name="com/timeindexing/**" />
     </javac>
 
   </target>
 
+ <target name="clean" description="Delete class files and docs dir.">
+    <delete>
+      <fileset dir="${basedir}" includes="**/*.class"/>
+    </delete>
+    <delete dir="${api}" />
+  </target>
+
+
   <!-- Archive -->
   <target name="dist" depends="build">
     <echo message="------ Building Jar file"/>
-    <jar jarfile="${jars}/timendexing-${release}.jar" basedir="${classes}" />
+    <!-- only classes -->
+    <jar jarfile="${jars}/timeindex-${release}.jar" basedir="${classes}"  includes="com/**" />
+    <!-- add src -->
+    <jar update="true" jarfile="${jars}/timeindex-${release}.jar" basedir="${basedir}" includes="com/**" excludes="**/*.class" />
+
+    <jar jarfile="${jars}/timeindex-bin-${release}.jar" basedir="${classes}"  includes="com/**" excludes="**/*.java" />
+    <jar jarfile="${jars}/timeindex-src-${release}.jar" basedir="${basedir}" includes="com/**" excludes="**/*.class" />
   </target>
 
   <!-- JavaDoc -->

@@ -164,9 +164,11 @@ public class ExternalIndexIO extends AbstractFileIO implements IndexFileInteract
 	    flush();
 
 	    // get a output thread going
-	    initThread(indexName + hashCode() + "-IOThread");
+	    initThread(indexName + "-" + hashCode() + "-IOThread");
 	    startThread();
 	
+            System.err.println(getClass().getSimpleName() + " " + getIndex().getName() + " created Thread " + myThread);
+
 	    return indexAppendPosition;
 
 	} catch (IndexOpenException ioe) {
@@ -225,6 +227,8 @@ public class ExternalIndexIO extends AbstractFileIO implements IndexFileInteract
 
 	initThread(indexName + "-" + hashCode() + "-IOThread");
 	startThread();
+
+	System.err.println(getClass().getSimpleName() + " " + getIndex().getName() + " opened Thread " + myThread);
 
 	return indexHeaderPosition;
     }
@@ -581,12 +585,14 @@ public class ExternalIndexIO extends AbstractFileIO implements IndexFileInteract
 
 
 	// close the header
-	headerInteractor.close();
+        headerInteractor.close();
 
 	// end thread
 	if (stopThread() == null) {
 	    System.err.println("Thread is null?");
 	} 
+
+        System.err.println(getClass().getSimpleName() + " " + getIndex().getName() + " closed ");
 
 	return size;
     }

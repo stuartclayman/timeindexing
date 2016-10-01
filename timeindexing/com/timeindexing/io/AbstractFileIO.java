@@ -102,6 +102,9 @@ public abstract class AbstractFileIO extends AbstractIndexIO implements IndexFil
     // has a timeout happened whilst waiting for some work
     boolean timeoutHappened = false;
 
+    // A sync object
+    Object syncObject = new Object();
+
     /*
      * The size of a header
      */
@@ -502,11 +505,18 @@ public abstract class AbstractFileIO extends AbstractIndexIO implements IndexFil
 	    //System.err.println("flushBuffer() writeQueue length = " + writeQueue.size());
 
 	    timeoutHappened = false;
-	    notifyAll();
+
+            notifyAllListeners();
 
 	}
 
 	return written;
+    }
+
+    private void notifyAllListeners() {
+        synchronized (syncObject) {
+            syncObject.notifyAll();
+        }
     }
 
     /**
@@ -514,14 +524,6 @@ public abstract class AbstractFileIO extends AbstractIndexIO implements IndexFil
      */
     public ManagedIndexItem getItem(Position position, boolean doLoadData) throws IOException {
 	return getItem(position.value(), doLoadData);  // sclayman 7/9/04
-	/*
-	  requestReadWork(position, doLoadData);
-
-	notifyAll();
-
-	ManagedIndexItem item = awaitItem(position);
-	*/
-
     }
 
     /**
@@ -578,16 +580,35 @@ public abstract class AbstractFileIO extends AbstractIndexIO implements IndexFil
 	id = indexBufRead.getLong();
 	annotationValue = indexBufRead.getLong();
 
-	if (type == DataType.REFERENCE_VALUE) {
-	    data = readReferenceData(offset, size);
-	    indexItem = new FileIndexItem(dataTS, indexTS, data, new Size(0),  DataType.REFERENCE, new SID(id), annotationValue);
-	    ((IndexReferenceDataHolder)data).setIndexItem(indexItem);
+        try { // sclayman 20130122
 
-	} else {
-	    data = readNormalData(offset, size, withData);
-	    indexItem = new FileIndexItem(dataTS, indexTS, data, DataTypeDirectory.find(type), new SID(id), annotationValue);
+            if (type == DataType.REFERENCE_VALUE) {
+                data = readReferenceData(offset, size);
+                indexItem = new FileIndexItem(dataTS, indexTS, data, new Size(0),  DataType.REFERENCE, new SID(id), annotationValue);
+                ((IndexReferenceDataHolder)data).setIndexItem(indexItem);
 
-	}
+            } else {
+                data = readNormalData(offset, size, withData);
+                indexItem = new FileIndexItem(dataTS, indexTS, data, DataTypeDirectory.find(type), new SID(id), annotationValue);
+
+            }
+        } catch (Error e) {
+            
+            System.err.println("readItem() Error: " + e.getMessage() +
+                               " startOffset = " + startOffset +
+                               " indexTS = " + indexTS +
+                               " dataTS = " + dataTS +
+                               " offset = " + offset +
+                               " size = " + size +
+                               " type = " + type +
+                               " id = " + id +
+                               " indexChannelPosition = " + indexChannelPosition);
+
+
+
+            throw e;
+
+        }
 
 	// tell the IndexItem where its index is
 	indexItem.setIndexOffset(new Offset(currentIndexPosition));
@@ -710,11 +731,11 @@ public abstract class AbstractFileIO extends AbstractIndexIO implements IndexFil
 	long readCount = 0;
 
 	if (size < 0) {
-	    throw new Error("InlineIndexIO: readItem() can;t have size < 0");
+	    throw new Error("AbstractFileIO: readItem() can;t have size < 0");
 	} else if (size >= Integer.MAX_VALUE) {
 	    // buffers can only be so big
 	    // check we can allocate one big enough
-		throw new Error("InlineIndexIO: readItem() has not YET implemented reading of data > " + Integer.MAX_VALUE + ". Actual size is " + size);
+		throw new Error("AbstractFileIO: readItem() has not YET implemented reading of data > " + Integer.MAX_VALUE + ". Actual size is " + size);
 	} else if (size <= 4096) {
 	    // the data is less than a page size so read it
 	    // allocate a buffer
@@ -1046,7 +1067,7 @@ public abstract class AbstractFileIO extends AbstractIndexIO implements IndexFil
     public synchronized long writeFromWorkQueue() throws IOException  {
 	long written = 0;
 
-	//System.err.println("writeFromWorkQueue() writeQueue length = " + writeQueue.size());
+	// System.err.println("AbstractFileIO:writeFromWorkQueue() writeQueue length = " + writeQueue.size());
 
 	// get the buffer from the queue
 	WriteRequest writeRequest = (WriteRequest)writeQueue.getFirst();
@@ -1086,39 +1107,41 @@ public abstract class AbstractFileIO extends AbstractIndexIO implements IndexFil
      * Wait for the timeout to go off.
      * @return true if the timeout happened, false if it dod not.
      */
-    public synchronized boolean timeOut(long timeout) {
-	try {
-	    timeoutHappened = true;
+    public boolean timeOut(long timeout) {
+        synchronized (syncObject) {
+            try {
+                timeoutHappened = true;
 
-	    // Now wait.
-	    // Other methods can set timeoutHappened
-	    // during the wait.
-	    wait(timeout);
+                // Now wait.
+                // Other methods can set timeoutHappened
+                // during the wait.
+                syncObject.wait(timeout);
 
-	    // if we get to here an timeoutHappened is still true
-	    // the wait ended because the amount of time has expired
-	    // if timeoutHappened is false, then it was set false
-	    // by a sendItem() or a receiveItem().
-	    if (timeoutHappened) {
-		return true;
-	    } else {
-		return false;
-	    }
-	} catch (InterruptedException ie) {
-	    //System.err.println("sleep interrupted");
-	    // a timeout didn;t happen, it was an interrupt
-	    timeoutHappened = false;
-	    return false;
-	}
+                // if we get to here an timeoutHappened is still true
+                // the wait ended because the amount of time has expired
+                // if timeoutHappened is false, then it was set false
+                // by a sendItem() or a receiveItem().
+                if (timeoutHappened) {
+                    return true;
+                } else {
+                    return false;
+                }
+            } catch (InterruptedException ie) {
+                //System.err.println(getIndex().getName() + " wait interrupted");
+                // a timeout didn;t happen, it was an interrupt
+                timeoutHappened = false;
+                return false;
+            }
+        }
     }
 
-    public synchronized boolean awaitWork() {
+    public boolean awaitWork() {
 	// wait for some work
 	timeOut(5 * 1000);
 
 	if (timeoutHappened) {
 	    // there was a timeout, i.e. no work
-	    //System.err.println("Sleep finished. No work");
+	    //System.err.println(getIndex().getName() + " awaitWork() sleep finished. No work");
 	    return false;
 	} else {
 	    // we got some work
@@ -1129,18 +1152,28 @@ public abstract class AbstractFileIO extends AbstractIndexIO implements IndexFil
     /**
      * The Thread run method.
      */
-    public synchronized void run() {
+    public void run() {
 	try {
 	    while (isRunning()) {
 
 		if (awaitWork() == true) {
-		    drainWriteQueue();
+                    if (!isRunning()) {
+                        break;
+                    } else {
+                        drainWriteQueue();
+                    }
+
 		} else {
-		    if (! headerInteractor.isReadOnly()) {
-			// the index is open for read and write
-			// so occassionally flush the header
-			headerInteractor.flush();
-		    }
+                    if (!isRunning()) {   // on thread stop
+                        break;
+                    } else {              // timeoutHappened
+                        if (! headerInteractor.isReadOnly()) {
+                            // the index is open for read and write
+                            // so occassionally flush the header
+                            //headerInteractor.flush();
+                            //System.err.println(getClass().getSimpleName() + " " + getIndex().getName() + " flush() in thread run() " + myThread);
+                        }
+                    }
 		}
 	    }
 
@@ -1148,7 +1181,13 @@ public abstract class AbstractFileIO extends AbstractIndexIO implements IndexFil
 	    System.err.println("Run Got IOException: " + ioe);
 	    ioe.printStackTrace();
 	}
-	//System.err.println("Thread run end " + myThread);
+
+        // reduce latch count by 1
+        latch.countDown();
+
+        endOfRun = true;
+
+	//System.err.println(getClass().getSimpleName() + " " + getIndex().getName() + " Thread run end " + myThread);
 
     }
 }

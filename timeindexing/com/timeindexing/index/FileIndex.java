@@ -94,7 +94,8 @@ public abstract class FileIndex extends AbstractManagedIndex implements StoredIn
      * Close this index.
      */
     public synchronized boolean reallyClose() throws IndexCloseException  {
-	//TimeIndexDirectory.mem("FileIndex reallyClose 1");
+        //System.err.println(getClass().getSimpleName() + " " + this.getName() + " top of reallyClose ");
+        //TimeIndexDirectory.mem("FileIndex reallyClose 1");
 
 	// if the index is activated
 	// set the end time in the header
@@ -120,6 +121,7 @@ public abstract class FileIndex extends AbstractManagedIndex implements StoredIn
 	    //indexInteractor = null;
 
 	    //TimeIndexDirectory.mem("FileIndex reallyClose 2");
+            //System.err.println(getClass().getSimpleName() + " " + this.getName() + " end of reallyClose ");
 
 	    return true;
 	} catch (IOException ioe) {
@@ -301,42 +303,53 @@ public abstract class FileIndex extends AbstractManagedIndex implements StoredIn
     public IndexItem getItem(long n) throws GetItemException, IndexClosedException {
 	setLastAccessTime();
 
-	IndexItem item = null;
+	// check if out of bounds
+        if (n < 0) {
+	    throw new GetItemException("Cant load item " + n);
+	} else if (n >= getLength()) {
+	    throw new GetItemException("Cant load item " + n);
+	} else {
 
-	if (isClosed()) {
-	    throw new IndexClosedException("Can't get item " + n + " from a closed index");
-	}
+	    IndexItem item = null;
 
-	synchronized (indexCache) {
-	    if (indexCache.containsItem(n)) { 	// if the cache has the item
-		// get it from the cache
-		item = indexCache.getItem(n);
-	    } else {
-		//System.err.println("FileIndex: " + getName() + " load-on-demand item: " + n);
-		try {
-		    // get the IndexItem from the index interactor.
-		    // This automatically gets placed in the cache
-		    item = indexInteractor.getItem(n, getLoadDataAutomatically());
+	    if (isClosed()) {
+		throw new IndexClosedException("Can't get item " + n + " from a closed index");
+	    }
 
-		    if (item == null) {
+	    synchronized (indexCache) {
+		if (indexCache.containsItem(n)) { 	// if the cache has the item
+		    // get it from the cache
+		    item = indexCache.getItem(n);
+		} else {
+		    System.err.println(getName() + " FileIndex: " +  "load-on-demand item: " + n);
+		    try {
+			// get the IndexItem from the index interactor.
+			// This automatically gets placed in the cache
+			item = indexInteractor.getItem(n, getLoadDataAutomatically());
+
+			if (item == null) {
+			    throw new GetItemException("Cant load item " + n);
+			}
+
+			// Get it out of the cache.
+			// This will fill the data if it is hollow
+			//item = indexCache.getItem(n);
+		    } catch (IOException ioe) {
 			throw new GetItemException("Cant load item " + n);
-		    }
-
-		    // Get it out of the cache.
-		    // This will fill the data if it is hollow
-		    //item = indexCache.getItem(n);
-		} catch (IOException ioe) {
-		    throw new GetItemException("Cant load item " + n);
+		    } catch (Error e) {
+                        System.err.println(getName() + " FileIndex: item " + n +  " Error: " + e);
+			throw new GetItemException("Cant load item " + n);
+                    }
 		}
 	    }
-	}
 
-	// tell all the listeners that an item has been accessed
-	if (eventMulticaster.hasAccessEventListeners()) {
-	    eventMulticaster.fireAccessEvent(new IndexAccessEvent(getURI().toString(), header.getID(), item, this));
-	}
+	    // tell all the listeners that an item has been accessed
+	    if (eventMulticaster.hasAccessEventListeners()) {
+		eventMulticaster.fireAccessEvent(new IndexAccessEvent(getURI().toString(), header.getID(), item, this));
+	    }
 
-	return item;
+	    return item;
+	}
     }
 
     /**
@@ -392,7 +405,7 @@ public abstract class FileIndex extends AbstractManagedIndex implements StoredIn
 	    cacheSize = indexCache.addItem(item, position);
 	}
 
-	//System.err.print("R");
+	System.err.print("R" + "(" + position + ")");
 	//System.err.flush();
 
 

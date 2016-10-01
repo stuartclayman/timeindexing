@@ -25,6 +25,7 @@ import com.timeindexing.index.ManagedIndexItem;
 import com.timeindexing.basic.Position;
 
 import java.util.LinkedList;
+import java.util.concurrent.CountDownLatch;
 import java.io.IOException;
 
 /**
@@ -42,12 +43,17 @@ public abstract class AbstractIndexIO implements IndexInteractor,  Runnable {
     // Should the thread be running
     boolean threadRunning = false;
 
+    // Have we got to end of run()
+    CountDownLatch latch = null;
+    boolean endOfRun = false;
+
     // A work queue for read requests
     LinkedList readQueue = null;
 
 
     // A work queue for write requests
     LinkedList writeQueue = null;
+
 
     /**
      * Get the index which this is doing I/O for.
@@ -64,6 +70,8 @@ public abstract class AbstractIndexIO implements IndexInteractor,  Runnable {
 	myThread = new Thread(this, name);
 	readQueue = new LinkedList();
 	writeQueue = new LinkedList();
+        latch = new CountDownLatch(1);
+
 	return myThread;
     }
 
@@ -80,8 +88,9 @@ public abstract class AbstractIndexIO implements IndexInteractor,  Runnable {
      */
     public Thread startThread() {
 	if (myThread != null) {
-	    myThread.start();
 	    threadRunning = true;
+            endOfRun = false;
+	    myThread.start();
 	    //System.err.println("Started Thread " + myThread);
 	    return myThread;
 	} else {
@@ -98,17 +107,34 @@ public abstract class AbstractIndexIO implements IndexInteractor,  Runnable {
 
 	    threadRunning = false;
 
-	    // interrupt any methods waiting for work or IO
-	    myThread.interrupt();
 
-	    //System.err.println("Stopped Thread " + myThread);
+            doStop();
 
-	    Thread retVal = myThread;
+	    //Thread retVal = myThread;
 	    //myThread = null;
-	    return retVal;
+	    //return retVal;
+            return myThread;
 	} else {
 	    return null;
 	}
+    }
+
+    private void doStop() {
+
+        //System.err.println(getIndex().getName() + " About to interrupt thread " + myThread);
+
+        // interrupt any methods waiting for work or IO
+        myThread.interrupt();
+ 
+        // join myThread if it is not finished
+        try {
+            latch.await();
+        } catch (InterruptedException ie) {
+        }
+  
+
+        //System.err.println(getClass().getSimpleName() + " " + getIndex().getName() + " Stopped Thread " + myThread);
+
     }
 
     /**

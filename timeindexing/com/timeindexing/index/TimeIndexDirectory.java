@@ -28,6 +28,7 @@ import java.net.URISyntaxException;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.concurrent.CountDownLatch;
 
 /**
  * This is the TimeIndexDirectory which returns Index objects.
@@ -62,6 +63,10 @@ public class TimeIndexDirectory {
      */
     protected HashMap lockMap = new HashMap();
 
+    protected Object lockObj = new Object();
+
+    protected CountDownLatch latch = null;
+
     /**
      * Construct a TimeIndexDirectory
      */
@@ -76,68 +81,89 @@ public class TimeIndexDirectory {
     /**
      * Lock an index
      */
-    public synchronized boolean lock(URI indexURI) {
+    public boolean lock(URI indexURI) {
 	//System.err.println("Locking " + indexURI + " Thread " + Thread.currentThread().getName());
 
-	if (lockMap.containsKey(indexURI)) {
-	    // already locked
-	    return false;
-	} else {
-	    // lock it
-	    lockMap.put(indexURI, indexURI);
-	    return true;
-	}
+        synchronized (lockObj) {
+            if (lockMap.containsKey(indexURI)) {
+                // already locked
+                return false;
+            } else {
+                // lock it
+                lockMap.put(indexURI, indexURI);
+
+                latch  = new CountDownLatch(1);
+
+                return true;
+            }
+        }
     }
 
     /**
      * Unlock an index
      */
-    public synchronized boolean unlock(URI indexURI) {
+    public boolean unlock(URI indexURI) {
 	//System.err.println("Unlocking " + indexURI + " Thread " + Thread.currentThread().getName());
 
-	if (lockMap.containsKey(indexURI)) {
-	    // already locked
-	    lockMap.remove(indexURI);
-	    notifyAll();
-	    return true;
-	} else {
-	    // not locked
-	    return false;
-	}
+        synchronized (lockObj) {
+            if (lockMap.containsKey(indexURI)) {
+                // already locked
+                lockMap.remove(indexURI);
+                
+                // reduce latch count by 1
+                latch.countDown();
+                
+                return true;
+            } else {
+                // not locked
+                return false;
+            }
+        }
     }
-
 
     /**
      * Is an index locked
      */
-    public synchronized boolean isLocked(URI indexURI) {
-	return lockMap.containsKey(indexURI);
+    public boolean isLocked(URI indexURI) {
+        synchronized (lockObj) {
+            return lockMap.containsKey(indexURI);
+        }
     }
 
     /**
      * Wait for an index to be unlocked and ready for action.
      */
-    public synchronized boolean lockWait(URI indexURI) {
+    public boolean lockWait(URI indexURI) {
 	//System.err.println("lockWait " + indexURI + " Thread " + Thread.currentThread().getName());
 
-	if (lockMap.containsKey(indexURI)) {
-	    // already locked
-	    while (lockMap.containsKey(indexURI)) {
-		try {
-		    //System.err.println("Awaiting " + indexURI + " Thread " + Thread.currentThread().getName());
-		    wait();
-		} catch (InterruptedException ie) {
-		    //System.err.println("Return " + indexURI + " Thread " + Thread.currentThread().getName());
-		}
-	    }
+        synchronized (lockObj) {
+            if (lockMap.containsKey(indexURI)) {
+                // already locked
+                while (lockMap.containsKey(indexURI)) {
+                    try {
+                        //System.err.println("Awaiting " + indexURI + " Thread " + Thread.currentThread().getName());
 
-	    // the index is unlocked
-	    return true;
 
-	} else {
-	    // not locked
-	    return false;
-	}
+                        boolean result = latch.await(500, java.util.concurrent.TimeUnit.MILLISECONDS);
+
+                        if (result == false) {
+                            System.err.println("TimeIndexDirectory: latch timeout for " + indexURI + " Thread " + Thread.currentThread().getName());
+                        }
+
+                        // sclayman 20160713 lockObj.wait();
+                    } catch (InterruptedException ie) {
+                        //System.err.println("Return " + indexURI + " Thread " + Thread.currentThread().getName());
+                    }
+                }
+
+                // the index is unlocked
+                return true;
+
+            } else {
+                // not locked
+                return false;
+            }
+        }
     }
 
     /**
@@ -326,13 +352,11 @@ public class TimeIndexDirectory {
     protected static Set listIndexes() {
 	// there are some shutdown situations where directory
 	// is nullified before we get here
-	if (directory == null) {
-	    return new HashSet();
-	}
+        if (directory == null) {
+            return new HashSet();
+        }
 
-	synchronized (directory) {
-	    return directory.listIndexesByName();
-	}
+        return directory.listIndexesByName();
     }
 
     /**
@@ -415,7 +439,13 @@ public class TimeIndexDirectory {
      */
     public static boolean unlockI(URI indexURI) {
 	synchronized (directory) {
-	    return directory.unlock(indexURI);
+	    if (directory.isLocked(indexURI)) {
+		// the index is locked, so
+		// we have to unlock it
+                return directory.unlock(indexURI);
+            } else {
+                return false;
+            }
 	}
     }
 

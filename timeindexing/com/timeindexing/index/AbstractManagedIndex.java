@@ -385,11 +385,18 @@ abstract class AbstractManagedIndex extends AbstractIndex implements ManagedInde
 
 	} else {
 	    // commit the contents
+            boolean commited = false;
+
 	    try {
 		commit();
+                commited = true;
 	    } catch (IndexCommitException ice) {
-		throw new IndexCloseException("Couldn't commit index " + getURI().toString() + " when attemting to close");
+                commited = false;
+                ;
 	    }
+
+            closed = true;
+            activated = false;
 
 	    // close any Indexes that have been opened due
 	    // to following a reference
@@ -403,32 +410,42 @@ abstract class AbstractManagedIndex extends AbstractIndex implements ManagedInde
 
 	    // now go on to close this index
 
-	    // lock the index
-	    boolean indexLocked = TimeIndexDirectory.indexGate(getURI());
+            boolean closeValue = false;
+            boolean indexLocked = false;
+            try {
+
+                // lock the index
+                indexLocked = TimeIndexDirectory.indexGate(getURI());
 
 
-	    //System.err.println("AbstractManagedIndex: close " + getURI() + " Thread " + Thread.currentThread().getName()) ;
-	    long refCount = removeView(view);
+                //System.err.println("AbstractManagedIndex: close " + getURI() + " Thread " + Thread.currentThread().getName()) ;
+                long refCount = removeView(view);
 
-	    // if we get to here and the ref coount is 0
-	    // then we close it
+                // if we get to here and the ref coount is 0
+                // then we close it
 
-	    boolean closeValue = false;
 	    
-	    if (refCount == 0) {
-		// System.err.println("About to really close " + getURI());
-		closeValue = reallyClose();
-	    } else {
-		closeValue = false;
-	    }
+                if (refCount == 0) {
+                    // System.err.println("About to really close " + getURI());
+                    closeValue = reallyClose();
+                } else {
+                    closeValue = false;
+                }
+            } finally {
+                // now we unlock it
+                if (indexLocked) {
+                    TimeIndexDirectory.unlockI(getURI());
+                }
+            }
 
-	    // now we unlock it
-	    if (indexLocked) {
-		TimeIndexDirectory.unlockI(getURI());
-	    }
-
-	    // return the closeValue
-	    return closeValue;
+            
+            if (commited) {
+                // return the closeValue
+                return closeValue;
+            } else {
+                // the commit() failed
+		throw new IndexCloseException("Couldn't commit index " + getURI().toString() + " when attemting to close");
+            }
 	    
 	}
     }
@@ -438,9 +455,6 @@ abstract class AbstractManagedIndex extends AbstractIndex implements ManagedInde
      * Really close this index.
      */
     public synchronized boolean reallyClose()  throws IndexCloseException {
-	closed = true;
-	activated = false;
-
 	if (eventMulticaster.hasPrimaryEventListeners()) {
 	    eventMulticaster.firePrimaryEvent(new IndexPrimaryEvent(getURI().toString(), header.getID(), IndexPrimaryEvent.CLOSED, this));
 	}
@@ -466,14 +480,20 @@ abstract class AbstractManagedIndex extends AbstractIndex implements ManagedInde
 	//System.err.println(Clock.time.time() + "" + getURI() + " NEW VIEW" + ". Thread " + Thread.currentThread().getName() );
 
 	// lock the index
-	boolean indexLocked = TimeIndexDirectory.indexGate(getURI());
+        boolean indexLocked = false;
+        IndexView view = null;
+        
+        try {
 
-	IndexView view = addView();
+            indexLocked = TimeIndexDirectory.indexGate(getURI());
 
-	// now we unlock it
-	if (indexLocked) {
-	    TimeIndexDirectory.unlockI(getURI());
-	}
+            view = addView();
+        } finally {
+            // now we unlock it
+            if (indexLocked) {
+                TimeIndexDirectory.unlockI(getURI());
+            }
+        }
 
 	return view ;
     }

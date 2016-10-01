@@ -64,6 +64,12 @@ public class IndexHeaderIO extends IndexDecoder implements HeaderFileInteractor,
     FileLock lock = null;
     // are we creating an Index
     boolean creating = false;
+    // are we closed
+    boolean closed = true;
+    // size of header buf
+    final int BUF_SIZE = 4096;
+
+    
 
     /**
      * Create a IndexHeaderIO.
@@ -71,14 +77,15 @@ public class IndexHeaderIO extends IndexDecoder implements HeaderFileInteractor,
     public IndexHeaderIO(IndexFileInteractor indexInteractor) {
 	interactor = indexInteractor;
 	myIndex = interactor.getIndex();
-	headerBuf = ByteBuffer.allocate(2048);
+	headerBuf = ByteBuffer.allocate(BUF_SIZE);
     }
 
 
     /**
      * Open an index header.
      */
-    public boolean open(String filename) throws IOException {
+    @Override
+    public synchronized boolean open(String filename) throws IOException {
 	try {
 	    fileName = FileUtils.resolveFileName(filename, ".tih");
 	    File file = new File(fileName);
@@ -109,6 +116,8 @@ public class IndexHeaderIO extends IndexDecoder implements HeaderFileInteractor,
 		read();
 	    }
 
+            closed = false;
+            
 	    return true;
 
 	} catch (FileNotFoundException fnfe) {
@@ -119,7 +128,7 @@ public class IndexHeaderIO extends IndexDecoder implements HeaderFileInteractor,
     /**
      * Create an index header.
      */
-    public boolean create(String filename) throws IOException {
+    public synchronized boolean create(String filename) throws IOException {
 	return create(filename, null);
     }
 
@@ -127,7 +136,7 @@ public class IndexHeaderIO extends IndexDecoder implements HeaderFileInteractor,
     /**
      * Create an index header.
      */
-    public boolean create(String filename, Properties options) throws IOException {
+    public synchronized boolean create(String filename, Properties options) throws IOException {
 	// going into creating mode
 	creating = true;
 
@@ -160,6 +169,7 @@ public class IndexHeaderIO extends IndexDecoder implements HeaderFileInteractor,
 
 	// finishing the creation task
 	creating = false;
+        closed = false;
 
 	if (opened) {
 	    return true;
@@ -171,7 +181,13 @@ public class IndexHeaderIO extends IndexDecoder implements HeaderFileInteractor,
     /**
      * Flush the current values to the header file.
      */
-    public long flush()  throws IOException {
+    public synchronized long flush()  throws IOException {
+        // if closed, nothing to flush
+        //if (closed) {
+        //    return 0L;
+        //}
+
+        
 	long writeCount = 0;
 
 	// sync the incore header with this
@@ -312,8 +328,9 @@ public class IndexHeaderIO extends IndexDecoder implements HeaderFileInteractor,
     /**
      * Operation on close
      */
-    public long close() throws IOException {
-	//System.err.println("In IndexHeaderIO.close()");
+    @Override
+    public synchronized long close() throws IOException {
+	//System.err.println(getClass().getSimpleName() + " IndexHeaderIO close()");
 	syncWithIndex();
 
 	return reallyClose();
@@ -331,7 +348,11 @@ public class IndexHeaderIO extends IndexDecoder implements HeaderFileInteractor,
 	}
 
 	// do super class close()
-	return super.close();
+	long result = super.close();
+
+        closed = true;
+
+        return result;
     }
 
     /**

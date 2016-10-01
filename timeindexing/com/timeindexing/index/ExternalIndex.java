@@ -82,7 +82,7 @@ public class ExternalIndex extends FileIndex implements ManagedIndex  {
     /**
      * Called when an ExternalIndex needs to be opend.
      */
-    public boolean open(Properties properties) throws IndexSpecificationException, IndexOpenException {
+    public synchronized boolean open(Properties properties) throws IndexSpecificationException, IndexOpenException {
 	// check the passed in properties
 	checkOpenProperties(properties);
 
