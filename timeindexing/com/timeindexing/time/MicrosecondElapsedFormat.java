@@ -30,12 +30,10 @@ import java.text.DecimalFormat;
  * e.g. <tt>00:00:01.593469</tt>
  */
 public class MicrosecondElapsedFormat extends AbstractElapsedFormat {
-    protected final long secsPerDay = 24 * 60 * 60;
-
     /*
      * A format for microseconds.  6 obligatory digits.
      */
-    private static NumberFormat microsformat = new DecimalFormat("000000");
+    private static final NumberFormat microsformat = new DecimalFormat("000000");
 
     /**
      * Construct a MicrosecondElapsedFormat object.

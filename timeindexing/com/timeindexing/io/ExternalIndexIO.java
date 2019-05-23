@@ -154,7 +154,7 @@ public class ExternalIndexIO extends AbstractFileIO implements IndexFileInteract
 
 	    // write a data file header
 	    // unless NO_DATA_FILE_HEADER is set
-	    if (headerInteractor.getOption(HeaderOption.NO_DATA_FILE_HEADER_HO) == Boolean.FALSE) { //	    if (noDataFileHeader.booleanValue() == false) {
+	    if (headerInteractor.getOption(HeaderOption.NO_DATA_FILE_HEADER_HO).equals(Boolean.FALSE)) { //	    if (noDataFileHeader.booleanValue() == false) {
 		dataHeaderPosition = writeDataHeader(FileType.EXTERNAL_DATA);
 	    }
 
@@ -349,7 +349,7 @@ public class ExternalIndexIO extends AbstractFileIO implements IndexFileInteract
 
 	long dataHeaderPosition = 0;
 
-	if (headerInteractor.getOption(HeaderOption.NO_DATA_FILE_HEADER_HO) == Boolean.FALSE) {
+	if (headerInteractor.getOption(HeaderOption.NO_DATA_FILE_HEADER_HO).equals(Boolean.FALSE)) {
 	    dataHeaderPosition = readDataHeader(FileType.EXTERNAL_DATA);
 
 	    // check ID in header == ID in index

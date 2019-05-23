@@ -338,6 +338,7 @@ public class DefaultIndexHeader implements ManagedIndexHeader {
      * Set the size of the data items, if there is fixed size data.
      */
     public ManagedIndexHeader setDataSize(long size) {
+        dataSize = size;
 	return this;
     }
 

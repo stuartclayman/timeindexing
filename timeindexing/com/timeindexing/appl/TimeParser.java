@@ -101,7 +101,7 @@ public class TimeParser {
 
 	//System.err.println("Parse input = " + dateStr);
 
-	if (date == null) {	// the time string is null
+	/* if (date == null) */ {	// the time string is null
 	    // let's try dayFormat
 	    date = dayFormat.parse(timeStr, pos);
 	    //System.err.println("Parse day = " + date);

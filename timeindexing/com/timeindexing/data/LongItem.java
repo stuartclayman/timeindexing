@@ -43,7 +43,7 @@ public class LongItem extends AbstractDataItem implements DataItem {
      * Construct a LongItem from a long
      */
     public LongItem(long f) {
-	theLong = new Long(f);
+	theLong = Long.valueOf(f);
     }
 
     /**
@@ -119,7 +119,7 @@ public class LongItem extends AbstractDataItem implements DataItem {
 	// The we can construct an Long from that.
 	long value = theBuffer.getLong();
 
-	theLong = new Long(value);
+	theLong = Long.valueOf(value);
 	
     }
 }

@@ -43,7 +43,7 @@ public class ShortItem extends AbstractDataItem implements DataItem {
      * Construct a ShortItem from a short
      */
     public ShortItem(short f) {
-	theShort = new Short(f);
+	theShort = Short.valueOf(f);
     }
 
     /**
@@ -119,7 +119,7 @@ public class ShortItem extends AbstractDataItem implements DataItem {
 	// The we can construct an Short from that.
 	short value = theBuffer.getShort();
 
-	theShort = new Short(value);
+	theShort = Short.valueOf(value);
 	
     }
 }

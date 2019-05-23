@@ -33,47 +33,47 @@ public class TimeDateParser {
     /*
      * A format for year/month/day plus hour:minutes:seconds
      */
-    protected DateParser fullestFormat = new DateParser("yyyy/MM/dd HH:mm:ss");
+    protected final DateParser fullestFormat = new DateParser("yyyy/MM/dd HH:mm:ss");
     /*
      * A format for day/month/year plus hour:minutes:seconds
      */
-    protected DateParser dmyFullestFormat = new DateParser("dd/MM/yyyy HH:mm:ss");
+    protected final DateParser dmyFullestFormat = new DateParser("dd/MM/yyyy HH:mm:ss");
     /*
      * A format for year/month/day plus hour:minutes:seconds with no spaces
      */
-    protected DateParser fullestFormatNS = new DateParser("yyyy/MM/dd-HH:mm:ss");
+    protected final DateParser fullestFormatNS = new DateParser("yyyy/MM/dd-HH:mm:ss");
     /*
      * A format for year/month/day plus hour:minutes
      */
-    protected DateParser fullFormat = new DateParser("yyyy/MM/dd HH:mm");
+    protected final DateParser fullFormat = new DateParser("yyyy/MM/dd HH:mm");
     /*
      * A format for day/month/year plus hour:minutes
      */
-    protected DateParser dmyFullFormat = new DateParser("dd/MM/yyyy HH:mm");
+    protected final DateParser dmyFullFormat = new DateParser("dd/MM/yyyy HH:mm");
     /*
      * A format for year/month/day plus hour:minutes with no spaces
      */
-    protected DateParser fullFormatNS = new DateParser("yyyy/MM/dd-HH:mm");
+    protected final DateParser fullFormatNS = new DateParser("yyyy/MM/dd-HH:mm");
     /*
      * A format for year/month/day
      */
-    protected DateParser ymdFormat = new DateParser("yyyy/MM/dd");
+    protected final DateParser ymdFormat = new DateParser("yyyy/MM/dd");
     /*
      * A format for day/month/year
      */
-    protected DateParser dmyFormat = new DateParser("dd/MM/yyyy");
+    protected final DateParser dmyFormat = new DateParser("dd/MM/yyyy");
     /*
      * A format for the first day
      */
-    protected DateParser dayFormat = new DateParser("HH:mm:ss");
+    protected final DateParser dayFormat = new DateParser("HH:mm:ss");
     /*
      * A format for the first hour
      */
-    protected DateParser hourFormat = new DateParser("mm:ss");
+    protected final DateParser hourFormat = new DateParser("mm:ss");
     /*
      * A format for seconds only
      */
-    protected DateParser secondFormat = new DateParser("ss");
+    protected final DateParser secondFormat = new DateParser("ss");
 
     Calendar calendar = null;
 
@@ -141,7 +141,7 @@ public class TimeDateParser {
 
 	    //System.err.println("Parse input = " + dateStr);
 
-	    if (date == null) {	// the time string is null
+	    /* if (date == null) */  {	// the time string is null
 		// let's try dayFormat
 		date = dayFormat.parse(timeStr);
 		//System.err.println("Parse day = " + date);

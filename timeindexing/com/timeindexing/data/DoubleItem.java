@@ -43,7 +43,7 @@ public class DoubleItem extends AbstractDataItem implements DataItem {
      * Construct a DoubleItem from a double
      */
     public DoubleItem(double d) {
-	theDouble = new Double(d);
+	theDouble = Double.valueOf(d);
     }
 
     /**
@@ -119,7 +119,7 @@ public class DoubleItem extends AbstractDataItem implements DataItem {
 	// The we can construct an Double from that.
 	double value = theBuffer.getDouble();
 
-	theDouble = new Double(value);
+	theDouble = Double.valueOf(value);
 	
     }
 }

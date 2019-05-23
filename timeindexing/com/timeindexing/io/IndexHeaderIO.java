@@ -67,7 +67,7 @@ public class IndexHeaderIO extends IndexDecoder implements HeaderFileInteractor,
     // are we closed
     boolean closed = true;
     // size of header buf
-    final int BUF_SIZE = 4096;
+    final static int BUF_SIZE = 4096;
 
     
 

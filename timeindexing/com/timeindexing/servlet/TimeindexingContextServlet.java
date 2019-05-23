@@ -256,9 +256,9 @@ public abstract class TimeindexingContextServlet extends HttpServlet {
 	String securityCodeString = (String)context.getInitParameter("security");
 
 	// set up values
-	securityCodeOn = new Boolean(securityCodeString).booleanValue();
+	securityCodeOn = Boolean.valueOf(securityCodeString);
 
-	String downloadLimitString = (String)context.getInitParameter("downloadlimit");
+	downloadLimitString = (String)context.getInitParameter("downloadlimit");
 	
 
 

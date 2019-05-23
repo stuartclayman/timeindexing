@@ -320,7 +320,9 @@ public class NewSelectServlet extends TimeindexingContextServlet {
 	    request.setAttribute("exception", ex);
 
 	    try {
-		selecter.close();
+                if (selecter != null) {
+                    selecter.close();
+                }
 	    } catch (TimeIndexException tie) {
 		System.err.println("SelectServlet:clsoe failed for " + 
 			       (String)properties.get("indexpath") );
@@ -588,7 +590,7 @@ public class NewSelectServlet extends TimeindexingContextServlet {
     /**
      * Wrap a Writer as an Output Stream.
      */
-    public class WriterOutputStream extends OutputStream {
+    public static class WriterOutputStream extends OutputStream {
 
 	private Writer writer;
 

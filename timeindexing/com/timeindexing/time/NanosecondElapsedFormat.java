@@ -30,12 +30,10 @@ import java.text.DecimalFormat;
  * e.g. <tt>00:00:01.593469450</tt>
  */
 public class NanosecondElapsedFormat extends AbstractElapsedFormat {
-    protected final long secsPerDay = 24 * 60 * 60;
-
     /*
      * A format for nanoseconds.  9 obligatory digits.
      */
-    private static NumberFormat nanosformat = new DecimalFormat("000000000");
+    private static final NumberFormat nanosformat = new DecimalFormat("000000000");
 
     /**
      * Construct a NanosecondElapsedFormat object.

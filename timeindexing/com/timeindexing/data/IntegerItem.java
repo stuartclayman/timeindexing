@@ -43,7 +43,7 @@ public class IntegerItem extends AbstractDataItem implements DataItem {
      * Construct a IntegerItem from an int
      */
     public IntegerItem(int i) {
-	theInteger = new Integer(i);
+	theInteger = Integer.valueOf(i);
     }
 
     /**
@@ -119,7 +119,7 @@ public class IntegerItem extends AbstractDataItem implements DataItem {
 	// The we can construct an Integer from that.
 	int value = theBuffer.getInt();
 
-	theInteger = new Integer(value);
+	theInteger = Integer.valueOf(value);
 	
     }
 }

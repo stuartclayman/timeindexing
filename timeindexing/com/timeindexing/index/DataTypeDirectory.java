@@ -279,7 +279,7 @@ public class DataTypeDirectory implements Serializable {
      * It will create a new DataType if necessary.
      */
     public DataType registerDataType(final String name, final int value) {
-	DataType dataType = new DataType() {
+	final DataType dataType = new DataType() {
 		public String mimeType() {
 		    return name;
 		}
@@ -356,13 +356,15 @@ public class DataTypeDirectory implements Serializable {
      * Get the saved ID.
      */
     public void getSavedID() {
+        ObjectInputStream ois = null;
 	try {
 	    File serialFile = new File(System.getProperty("user.home"), ".timeindexing.DataTypeID.ser");
-	    ObjectInputStream ois = new ObjectInputStream(new FileInputStream(serialFile));
+            FileInputStream fis = new FileInputStream(serialFile);
+	    ois = new ObjectInputStream(fis);
 	    DataTypeDirectory copy = (DataTypeDirectory)ois.readObject();
-	    ois.close();
 	    nextID = copy.nextID;
 	    loadedID = nextID;
+	    ois.close();
 
 	} catch (IOException ioe) {
 	    //System.err.println("getSavedID: IOException");
@@ -370,21 +372,35 @@ public class DataTypeDirectory implements Serializable {
 	    
 	} catch (ClassNotFoundException cnfe) {
 	     System.err.println("getSavedID: ClassNotFoundException");
-	}
+	} finally {
+            try {
+                ois.close();
+            } catch (IOException ioe) {
+                // if we get an IOException on close, it;s bad
+            }
+        }
     }
 
     /**
      * Save the next ID.
      */
     public void saveNextID() {
+        ObjectOutputStream oos = null;
 	try {
 	    File serialFile = new File(System.getProperty("user.home"), ".timeindexing.DataTypeID.ser");
-	    ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(serialFile));
+            FileOutputStream fis = new FileOutputStream(serialFile);
+	    oos = new ObjectOutputStream(fis);
 	    oos.writeObject(this);
 	    oos.close();
 	} catch (IOException ioe) {
 	    System.err.println("saveNextID: IOException" + ioe);
-	}
+	} finally {
+            try {
+                oos.close();
+            } catch (IOException ioe) {
+                // if we get an IOException on close, it;s bad
+            }
+        }
     }
 
     /**

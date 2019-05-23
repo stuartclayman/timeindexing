@@ -58,7 +58,7 @@ public class SecurityCodeServlet extends SelectServlet {
 
 	    long evaluatedCode = codeChecker.evaluate(properties);
 
-	    request.setAttribute("securitycode", new Long(evaluatedCode));
+	    request.setAttribute("securitycode", Long.valueOf(evaluatedCode));
 
 	    RequestDispatcher dispatcher =  getServletContext().getRequestDispatcher("/security/show_code.jsp");
 

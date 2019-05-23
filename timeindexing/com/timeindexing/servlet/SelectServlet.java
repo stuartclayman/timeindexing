@@ -109,7 +109,7 @@ public class SelectServlet extends HttpServlet implements IndexPrimaryEventListe
 	selectExceptionPage = (String)context.getInitParameter("selectexceptionpage");
 
 	// set up values
-	securityCodeOn = new Boolean(securityCodeString).booleanValue();
+	securityCodeOn = Boolean.valueOf(securityCodeString);
 
 	if (noRepositoryPage == null) {
 	    noRepositoryPage = "/error/no_repository.jsp";
@@ -416,7 +416,7 @@ public class SelectServlet extends HttpServlet implements IndexPrimaryEventListe
 	    }
 	} catch (Exception ex) {
 
-	    System.err.println(Clock.time.time() + " index://" + (String)properties.get("indexpath") + ". Failure: Message = " + ex.getMessage() + " after " + selecter.getBytesOutput() + " bytes"+ ". Thread " + Thread.currentThread().getName() );
+	    System.err.println(Clock.time.time() + " index://" + (String)properties.get("indexpath") + ". Failure: Message = " + ex.getMessage() + (selecter != null ? (" after " + selecter.getBytesOutput() + " bytes") : "No selecter")  + ". Thread " + Thread.currentThread().getName() );
 
 	    ex.printStackTrace(System.err);
 
@@ -425,7 +425,9 @@ public class SelectServlet extends HttpServlet implements IndexPrimaryEventListe
 	    request.setAttribute("exception", ex);
 
 	    try {
-		selecter.close();
+                if (selecter != null) {
+                    selecter.close();
+                }
 	    } catch (TimeIndexException tie) {
 		System.err.println("SelectServlet:close failed for " + 
 			       (String)properties.get("indexpath") );
@@ -703,7 +705,7 @@ public class SelectServlet extends HttpServlet implements IndexPrimaryEventListe
    /**
      * Wrap a Writer as an Output Stream.
      */
-    public class WriterOutputStream extends OutputStream {
+    public static class WriterOutputStream extends OutputStream {
 
 	private Writer writer;
 

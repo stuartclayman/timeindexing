@@ -43,7 +43,7 @@ public class BooleanItem extends AbstractDataItem implements DataItem {
      * Construct a BooleanItem from a boolean
      */
     public BooleanItem(boolean f) {
-	theBoolean = new Boolean(f);
+	theBoolean = Boolean.valueOf(f);
     }
 
     /**
@@ -122,7 +122,7 @@ public class BooleanItem extends AbstractDataItem implements DataItem {
 	// The we can construct an Boolean from that.
 	byte value = theBuffer.get();
 
-	theBoolean = new Boolean(value == 0 ? false : true);
+	theBoolean = Boolean.valueOf(value == 0 ? false : true);
 	
     }
 }

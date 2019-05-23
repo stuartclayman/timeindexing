@@ -1111,7 +1111,7 @@ public abstract class AbstractIndex implements ExtendedIndex, ExtendedIndexHeade
     /**
      * Determine if one Position is lessthan another Position.
      */
-    private Comparator itemComparator = new Comparator() {
+    private final static Comparator itemComparator = new Comparator() {
 	    public int compare(Object o1, Object o2) {
 		Position p1 = (Position)o1;
 		Position p2 = (Position)o2;

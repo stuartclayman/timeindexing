@@ -150,8 +150,10 @@ public class SerializableItem extends AbstractDataItem implements DataItem {
 
 	    // and close the ObjectInputStream
 	    ois.close();
+        } catch (RuntimeException re) {
+	    throw new Error("RuntimeException " + re.getMessage() + " Failed to read serializable data for " + this);
 	} catch (Exception e) {
-	    throw new Error("Failed to read serializable data for " + this);
+	    throw new Error("Exception " + e.getMessage() +" Failed to read serializable data for " + this);
 	}
 
     }

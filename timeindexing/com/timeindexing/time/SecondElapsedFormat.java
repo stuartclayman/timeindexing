@@ -30,8 +30,6 @@ import java.text.DecimalFormat;
  * e.g. <tt>00:02:01</tt>
  */
 public class SecondElapsedFormat extends AbstractElapsedFormat {
-    protected final long secsPerDay = 24 * 60 * 60;
-
     /**
      * Construct a SecondElapsedFormat object.
      */

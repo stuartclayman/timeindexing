@@ -45,7 +45,7 @@ public class DefaultWriter implements WriterPlugin {
     static byte[] eol = null;
 
     static {
-	eol = new Character((char)182).toString().getBytes();
+	eol = Character.toString((char)182).getBytes();
     }
 
     /*
@@ -54,7 +54,7 @@ public class DefaultWriter implements WriterPlugin {
     static byte[] nl = null;
 
     static {
-	nl = new Character((char)10).toString().getBytes();
+	nl = Character.toString((char)10).getBytes();
     }
 
     /**

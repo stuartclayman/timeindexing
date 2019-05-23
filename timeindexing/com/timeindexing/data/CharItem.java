@@ -43,7 +43,7 @@ public class CharItem extends AbstractDataItem implements DataItem {
      * Construct a CharItem from a char
      */
     public CharItem(char f) {
-	theChar = new Character(f);
+	theChar = Character.valueOf(f);
     }
 
     /**
@@ -119,7 +119,7 @@ public class CharItem extends AbstractDataItem implements DataItem {
 	// The we can construct an Char from that.
 	char value = theBuffer.getChar();
 
-	theChar = new Character(value);
+	theChar = Character.valueOf(value);
 	
     }
 }

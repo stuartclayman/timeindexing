@@ -43,7 +43,7 @@ public class ByteItem extends AbstractDataItem implements DataItem {
      * Construct a ByteItem from a byte
      */
     public ByteItem(byte f) {
-	theByte = new Byte(f);
+	theByte = Byte.valueOf(f);
     }
 
     /**
@@ -119,7 +119,7 @@ public class ByteItem extends AbstractDataItem implements DataItem {
 	// The we can construct an Byte from that.
 	byte value = theBuffer.get();
 
-	theByte = new Byte(value);
+	theByte = Byte.valueOf(value);
 	
     }
 }

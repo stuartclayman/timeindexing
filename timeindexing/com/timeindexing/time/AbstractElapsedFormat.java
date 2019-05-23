@@ -34,41 +34,41 @@ public abstract class AbstractElapsedFormat implements TimestampFormatting {
     /*
      * A format for the first hour
      */
-    protected static DateFormatter firstHourformat = new DateFormatter("mm:ss");
+    protected final static DateFormatter firstHourformat = new DateFormatter("mm:ss");
 
     /*
      * A format for the first day
      */
-    protected static DateFormatter firstDayformat = new DateFormatter("HH:mm:ss");
+    protected final static DateFormatter firstDayformat = new DateFormatter("HH:mm:ss");
 
     /*
      * A format for the first year
      */
-    protected static NumberFormat daysformat = new DecimalFormat("000");
-    protected static DateFormatter firstYearformat = new DateFormatter("HH:mm:ss");
+    protected final static NumberFormat daysformat = new DecimalFormat("000");
+    protected final static DateFormatter firstYearformat = new DateFormatter("HH:mm:ss");
 
     /*
      * Catchall format 
      */
-    protected static NumberFormat yearsformat = new DecimalFormat("0000");
-    protected static DateFormatter catchAllformat = new DateFormatter("HH:mm:ss");
+    protected final static NumberFormat yearsformat = new DecimalFormat("0000");
+    protected final static DateFormatter catchAllformat = new DateFormatter("HH:mm:ss");
 
     /*
      * Secs Per Minute.
      */
-    protected final long secsPerMinute = 60;
+    protected final static long secsPerMinute = 60;
     /*
      * Secs Per Hour.
      */
-    protected final long secsPerHour = 60 * 60;
+    protected final static long secsPerHour = 60 * 60;
     /*
      * Secs Per Day.
      */
-    protected final long secsPerDay = 24 * 60 * 60;
+    protected final static long secsPerDay = 24 * 60 * 60;
     /*
      * Secs Per Year (approximately).
      */
-    protected final long secsPerYear = 365 * 24 * 60 * 60;
+    protected final static long secsPerYear = 365 * 24 * 60 * 60;
 
     /**
      * Format a Timestamp.

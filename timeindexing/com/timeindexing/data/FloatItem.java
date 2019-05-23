@@ -43,7 +43,7 @@ public class FloatItem extends AbstractDataItem implements DataItem {
      * Construct a FloatItem from a float
      */
     public FloatItem(float f) {
-	theFloat = new Float(f);
+	theFloat = Float.valueOf(f);
     }
 
     /**
@@ -119,7 +119,7 @@ public class FloatItem extends AbstractDataItem implements DataItem {
 	// The we can construct an Float from that.
 	float value = theBuffer.getFloat();
 
-	theFloat = new Float(value);
+	theFloat = Float.valueOf(value);
 	
     }
 }

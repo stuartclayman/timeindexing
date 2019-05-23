@@ -65,7 +65,7 @@ public class PolicyIndexCache implements IndexCache {
     Timestamp lastDataTime = Timestamp.ZERO;
     ManagedIndex myIndex = null;
 
-	Comparator itemComparator = new Comparator() {
+    private final static Comparator itemComparator = new Comparator() {
 		public int compare(Object o1, Object o2) {
 		    Position p1 = (Position)o1;
 		    Position p2 = (Position)o2;

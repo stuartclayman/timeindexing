@@ -21,7 +21,7 @@
 package com.timeindexing.index;
 
 import java.util.Iterator;
-
+import java.util.NoSuchElementException;
 /**
  * An iterator over the IndexItems in an Index.
  */
@@ -55,7 +55,7 @@ public class IndexIterator implements Iterator {
      * Get the next element.
      * @return null if it was not possible to get a particular IndexItem
      */
-    public Object next() {
+    public Object next() throws NoSuchElementException {
 	try {
 	    Object nextObject = index.getItem(position);
 
@@ -68,7 +68,9 @@ public class IndexIterator implements Iterator {
 	} catch (IndexClosedException ice) {
 	    // it was not possible to get the item
 	    return null;
-	} 
+	} catch (Exception e) {
+            throw new NoSuchElementException(e.getMessage());
+        }
     }
 
     /**

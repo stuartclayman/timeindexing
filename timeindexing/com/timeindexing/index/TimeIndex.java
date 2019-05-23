@@ -101,11 +101,11 @@ public  class TimeIndex implements Index, IndexView, IndexAddEventListener, Clon
      */
     IndexView selectionIndexView = null;
 
-    /*
+    /**
      * Is this terminated.
      * This variable is only used when a selection is taken.
      */
-    public boolean isTerminated = false;
+    boolean isTerminated = false;
 
    /**
      * Construct a Time Index using the nominated Index object.
