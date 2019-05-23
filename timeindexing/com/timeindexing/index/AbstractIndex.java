@@ -948,37 +948,36 @@ public abstract class AbstractIndex implements ExtendedIndex, ExtendedIndexHeade
 	return select(interval, selector, overlap, lifetime);
     }
 
-
     /**
      * Filter some IndexItems out into a new IncoreIndex.
      */
-    public IndexView filter(Function fn) throws TimeIndexException {
-	// Create a new Incore Index for the result of this filtering
-	Properties properties = new Properties();
-	properties.put("name" , ("filter_"+ new UID().value()));
+    public IndexView filter(Predicate pred) throws TimeIndexException {
+        // Create a new Incore Index for the result of this filtering
+        Properties properties = new Properties();
+        properties.put("name" , ("filter_"+ new UID().value()));
 
-	IncoreIndex filterIndex = new IncoreIndex();
-	filterIndex.create(properties);
+        IncoreIndex filterIndex = new IncoreIndex();
+        filterIndex.create(properties);
 
-	IndexView view = filterIndex.addView();
+        IndexView view = filterIndex.addView();
 
-	// now skip through this index
-	Iterator iterator = iterator();
+        // now skip through this index
+        Iterator iterator = iterator();
 
-	while (iterator.hasNext()) {
-	    IndexItem nextItem = (IndexItem)iterator.next();
+        while (iterator.hasNext()) {
+            IndexItem nextItem = (IndexItem)iterator.next();
 
-	    if (fn.evaluate(nextItem) != null) {
-		// we need to keep this IndexItem
-		// so add a reference to this IndexItem
-		filterIndex.addReference(nextItem, this);
-	    }
-	}
+            if (pred.test(nextItem) == true) {
+                // we need to keep this IndexItem
+                // so add a reference to this IndexItem
+                filterIndex.addReference(nextItem, this);
+            }
+        }
 
-	// terminate the new index
-	filterIndex.terminate();
+        // terminate the new index
+        filterIndex.terminate();
 
-	return view;
+        return view;
     }
 
     /**
