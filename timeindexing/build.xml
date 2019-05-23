@@ -6,7 +6,7 @@
     <echo message=""/>
     <property name="sources" value="${basedir}"/>
     <property name="classes" value="${basedir}/classes"/>
-    <property name="external.jars" value="/usr/local/jakarta-tomcat-4.1.27/common/lib/servlet.jar:/usr/local/jakarta-tomcat-4.1.27/server/lib/catalina.jar" />
+    <property name="external.jars" value="./libs/servlet.jar" />
     <property name="api" value="${basedir}/ti-doc"/>    
     <property name="year" value="2008"/>
     <property name="jars" value="${basedir}"/>
