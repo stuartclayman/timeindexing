@@ -27,11 +27,24 @@ import com.timeindexing.index.IndexProperties;
 import com.timeindexing.index.TimeIndexException;
 import com.timeindexing.appl.SelectionProcessor;
 import com.timeindexing.time.Clock;
+import com.timeindexing.plugin.OutputPlugin;
 import java.io.OutputStream;
 import java.io.IOException;
 
 /**
- * A class to output a selctino of the data.
+ * A class to output a selection of the data.
+ * The selection is made by passing some IndexProperties to doOutput().
+ * The IndexProperties are passed to a SelectionProcessor.
+ * <p>
+ * Types of values in the IndexProperties are:
+ * <ul>
+ * <li> "startpos" -> value accepted by PositionParser
+ * <li> "starttime" -> value accepted by TimeDateParser
+ * <li> "endpos" ->  value accepted by PositionParser
+ * <li> "endtime" -> value accepted by TimeDateParser
+ * <li> "count" -> value accepted by CountParser
+ * <li> "for" -> value accepted by TimeDateParser
+ * </ul>
  */
 public class SelectionStreamer extends OutputStreamer  {
     /**
@@ -43,9 +56,19 @@ public class SelectionStreamer extends OutputStreamer  {
     }
 
     /**
+     * Construct an SelectionStreamer object given
+     * an index and an output stream and an OutputPlugin.
+     */
+    public SelectionStreamer(Index anIndex, OutputStream output, OutputPlugin plugin) {
+	super(anIndex, output, plugin);
+    }
+
+
+    /**
      * Do some output, given some IndexProperties.
      * The IndexProperties specify a selection to make.
      * Only the selection is output.
+     * The IndexProperties are passed to a SelectionProcessor.
      */
     public long doOutput(IndexProperties properties) throws IOException, TimeIndexException {
 	outputProperties = properties;
@@ -58,11 +81,16 @@ public class SelectionStreamer extends OutputStreamer  {
  
 	IndexView selection = selector.select((IndexView)index, properties);
 
-	writeCount = processTimeIndex((IndexView)selection);
+	if (selection == null || selection.getLength() == 0) {
+	    // nothing to do
+	} else {
+	    // process the time index
+	    writeCount = processTimeIndex((IndexView)selection);
+	}
 
 	outputPlugin.end();
 
-	System.err.println(Clock.time.time() + " " + index.getURI() + ". output bytes = " + writeCount + ". Thread " + Thread.currentThread().getName() );
+	//System.err.println(Clock.time.time() + " " + index.getURI() + ". output bytes = " + writeCount + ". Thread " + Thread.currentThread().getName() );
 
 	return writeCount;
     }

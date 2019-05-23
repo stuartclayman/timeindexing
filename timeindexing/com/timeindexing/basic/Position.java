@@ -37,9 +37,9 @@ public interface Position extends Absolute, Cloneable {
     /**
      * Special End Of Index value.
      */
-    public final static Position END_OF_INDEX = new Position() {
+    public final static Position END_OF_INDEX = new AbsolutePosition() {
 	    public long value() {
-		return Long.MIN_VALUE;
+		return Long.MAX_VALUE;
 	    }
 
 	    public String toString() {

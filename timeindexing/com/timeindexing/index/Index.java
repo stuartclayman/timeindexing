@@ -213,7 +213,7 @@ public interface Index extends IndexHeader {
     /**
      * Filter some IndexItems out into a new IncoreIndex.
      */
-    public IndexView filter(Function f) throws TimeIndexException;
+    public IndexView filter(Predicate p) throws TimeIndexException;
 
     /**
      * Map a function to all of the IndexItems, resulting  in a new IncoreIndex.

@@ -735,8 +735,8 @@ public  class TimeIndex implements Index, IndexView, IndexAddEventListener, Clon
     /**
      * Filter some IndexItems out into a new IncoreIndex.
      */
-    public IndexView filter(Function fn) throws TimeIndexException {
-	return indexModel.filter(fn);
+    public IndexView filter(Predicate p) throws TimeIndexException {
+	return indexModel.filter(p);
     }
 
     /**

@@ -98,7 +98,7 @@ public class DefaultOutputPlugin implements OutputPlugin {
 
    
     /**
-     * Set a writer plugin, to read input from the InputStream.
+     * Set a writer plugin, to write data to the OutputStream.
      */
     public OutputPlugin setWriterPlugin(WriterPlugin writer) {
 	plugin = writer;

@@ -28,6 +28,9 @@ import com.timeindexing.event.IndexPrimaryEventListener;
 import com.timeindexing.event.OutputEventListener;
 import com.timeindexing.event.OutputEventGenerator;
 import com.timeindexing.event.OutputEvent;
+import com.timeindexing.plugin.OutputPlugin;
+import com.timeindexing.plugin.DefaultOutputPlugin;
+import com.timeindexing.plugin.DefaultWriter;
 import java.io.OutputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -50,6 +53,8 @@ public class Selecter extends OutputEventGenerator implements OutputEventListene
 
     SelectionStreamer outputter = null;
 
+    OutputPlugin outputPlugin = null;
+
     /**
      * Construct a Selecter object, with output to System.out.
      */
@@ -61,6 +66,13 @@ public class Selecter extends OutputEventGenerator implements OutputEventListene
      * Construct a Selecter object.
      */
     public Selecter(String filename, OutputStream out) {
+	this(filename, out, new DefaultOutputPlugin(new DefaultWriter()));
+    }
+
+    /**
+     * Construct a Selecter object.
+     */
+    public Selecter(String filename, OutputStream out, OutputPlugin plugin) {
 	factory = new TimeIndexFactory();
 	properties = new Properties();
 
@@ -69,6 +81,9 @@ public class Selecter extends OutputEventGenerator implements OutputEventListene
 
 	// set the output
 	output = out;
+
+	// set plugin
+	outputPlugin = plugin;
     }
 
     /**
@@ -103,7 +118,7 @@ public class Selecter extends OutputEventGenerator implements OutputEventListene
 
 	long total = 0;
 
-	outputter = new SelectionStreamer(index, output);
+	outputter = createSelectionStreamer(index, output, outputPlugin);
 
 	// listen to SelectionStreamer to get OutputEvents
 	outputter.addOutputEventListener(this);
@@ -118,6 +133,15 @@ public class Selecter extends OutputEventGenerator implements OutputEventListene
 	//System.err.println("Selecter: " + hashCode() + " close." + " Thread " + Thread.currentThread().getName());
 
 	factory.close(index);
+    }
+
+    /**
+     * Create a SelectionStreamer for doing output.
+     * By default it creates a SelectionStreamer, subclasses of Selecter can
+     * create subclasses of SelectionStreamer.
+     */
+    protected SelectionStreamer createSelectionStreamer(Index index, OutputStream output, OutputPlugin plugin) {
+	return new SelectionStreamer(index, output, plugin);
     }
 
     /**

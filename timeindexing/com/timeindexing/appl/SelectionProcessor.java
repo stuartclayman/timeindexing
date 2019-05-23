@@ -89,7 +89,7 @@ public class SelectionProcessor {
 	// select from the interval
 	selection = index.select(interval, IndexTimestampSelector.DATA, Overlap.FREE, lifetime);
 
-	System.err.println(Clock.time.time() + " " + index.getURI() + "." + ipp.prettyPrint(properties) + " Items = " + selection.getLength() + ". Thread " + Thread.currentThread().getName() );
+	//System.err.println(Clock.time.time() + " " + index.getURI() + "." + ipp.prettyPrint(properties) + " Items = " + selection.getLength() + ". Thread " + Thread.currentThread().getName() );
 
 
 	return selection;

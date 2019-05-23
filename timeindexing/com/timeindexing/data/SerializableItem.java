@@ -115,6 +115,7 @@ public class SerializableItem extends AbstractDataItem implements DataItem {
 	    oos.writeObject(object);
 	    oos.close();
 	} catch (Exception e) {
+	    e.printStackTrace();
 	    throw new Error("Failed to write serializable data for " + this);
 	}
 
